@@ -46,8 +46,8 @@ namespace MG {
 			: _C_(_il) {}
 
 		// iterators
-		template<typename _Iter, std::enable_if_t<std::_Is_iterator_v<_Iter>, int> = 0>
-		constexpr iqueue(_Iter _First, _Iter _Last) noexcept
+		template<typename _Iterator>
+		constexpr iqueue(_Iterator _First, _Iterator _Last) noexcept
 			: _C_(_First, _Last) {}
 
 
@@ -114,7 +114,7 @@ namespace MG {
 		constexpr bool operator==(const iqueue& _rhs) const noexcept { return _C_ == _rhs._C_; }
 		constexpr bool operator!=(const iqueue& _rhs) const noexcept { return _C_ != _rhs._C_; }
 
-
+		// demo purpose
 		constexpr void print() noexcept
 		{
 			std::cout << "\n\n";
