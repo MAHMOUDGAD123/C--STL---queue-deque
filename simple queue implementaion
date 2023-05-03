@@ -1,5 +1,7 @@
 #pragma once
+
 #include <initializer_list>
+#include "../utility/MG_utility.h"
 
 
 namespace MG {
@@ -239,7 +241,7 @@ namespace MG {
 				new(&_Data[0]) _Ty(std::forward<Args>(_val)...);
 				return _Data[0];
 			}
-			if (_End >= _Capacity - 1) { // if _End index is at the end
+			if (_End >= _Capacity - 1) { // if _End is at the end
 				_Realloc((size_type)(_Size < _Capacity ? _Size * 1.5 : _Capacity * 1.5));
 			}
 			new(&_Data[++_End]) _Ty(std::forward<Args>(_val)...);
@@ -247,18 +249,13 @@ namespace MG {
 			return _Data[_End]; // return a reference to the pushed element
 		}
 
-		constexpr void push(const_reference _val) noexcept
-		{
-			emplace(_val);
-		}
-		constexpr void push(rvalue_reference _val) noexcept
-		{
-			emplace(std::move(_val));
-		}
+		constexpr void push(const_reference _val) noexcept { (void)emplace(_val); }
+		constexpr void push(rvalue_reference _val) noexcept { (void)emplace(std::move(_val)); }
 
 		constexpr void pop() noexcept
 		{
 			if (empty()) return;
+
 			_Data[_Start].~_Ty(); // calling the destructor for the first element
 
 			if (--_Size == 0) { // if it was the last element
@@ -277,6 +274,36 @@ namespace MG {
 			queue _Temp{ std::move(*this) };
 			_Steal_Data(_Other);
 			_Other._Steal_Data(_Temp);
+		}
+
+		constexpr void reverse() noexcept
+		{
+			if (_Size == 0 || _Size == 1) return;
+
+			for (size_type S(_Start), E(_End); S < E; ++S, --E) {
+				algorithm::swap(_Data[S], _Data[E]);
+			}
+		}
+
+		constexpr void clear() noexcept { _Clear(); }
+
+
+		constexpr bool operator==(const queue& _rhs) const noexcept
+		{
+			if (this == &_rhs) return true;
+			if (_Size != _rhs._Size) return false;
+
+			for (size_type i(_Start); i <= _End; ++i) {
+				if (_Data[i] != _rhs._Data[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		constexpr bool operator!=(const queue& _rhs) const noexcept
+		{
+			return !(*this == _rhs);
 		}
 
 
@@ -311,23 +338,7 @@ namespace MG {
 		}
 
 
-		constexpr bool operator==(const queue& _rhs) const noexcept
-		{
-			if (this == &_rhs) return true;
-			if (_Size != _rhs._Size) return false;
-
-			for (size_type i(_Start); i <= _End; ++i) {
-				if (_Data[i] != _rhs._Data[i]) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		constexpr bool operator!=(const queue& _rhs) const noexcept
-		{
-			return !(*this == _rhs);
-		}
+		
 	};
 
 }
