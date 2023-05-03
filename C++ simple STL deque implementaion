@@ -5,7 +5,7 @@
 
 namespace MG {
 
-	inline constexpr size_t next_power_of_2(size_t N)
+	static inline constexpr size_t next_power_of_2(size_t N)
 	{
 		--N;
 		N |= (N >> 1);
@@ -16,8 +16,6 @@ namespace MG {
 		//N |= (N >> 32); // 64 bit number
 		return ++N;
 	}
-
-
 
 
 	// deque iterator class
@@ -170,11 +168,7 @@ namespace MG {
 		}
 	};
 
-	
-  
-  
-  
-  
+
 	template <typename _Ty>
 	class deque
 	{
@@ -209,7 +203,7 @@ namespace MG {
 
 		pointer _alloc(size_type Capacity)
 		{
-			return (pointer)::operator new(Capacity * sizeof(value_type));
+			return (pointer)::operator new(Capacity * sizeof(_Ty));
 		}
 
 		void _dealloc(size_type Capacity)
@@ -383,7 +377,7 @@ namespace MG {
 
 		~deque()
 		{
-			if (!empty()) {
+			if (_data) {
 				_kill();
 			}
 		}
@@ -414,8 +408,12 @@ namespace MG {
 		template<typename... Args>
 		constexpr reference emplace_back(Args&&... args)
 		{
-			if (_first + _size == _capacity)
+			if (!_data) { // if _data is null
+				_init(_alloc(min_capacity), 3, min_capacity, 0);
+			}
+			else if (_first + _size == _capacity) {
 				_realloc(_capacity * 2);
+			}
 
 			new(&_data[_first + _size]) value_type(std::forward<Args>(args)...);
 			return _data[_first + _size++];
@@ -424,23 +422,25 @@ namespace MG {
 
 		void push_front(const_reference _val)
 		{
-			if (!_first) // reallocate if (_first == 0)
-				_realloc(_capacity * 2);
-			_data[--_first] = _val, _size++;
+			(void)emplace_front(_val);
 		}
 		void push_front(rvalue_reference _val)
 		{
-			emplace_front(std::move(_val));
+			(void)emplace_front(std::move(_val));
 		}
 
 		template<typename... Args>
 		constexpr reference emplace_front(Args&&... args)
 		{
-			if (!_first) // reallocate if (_first == 0)
-				_realloc(_capacity * 2);
+			if (!_data) { // if _data is null
+				_init(_alloc(min_capacity), 3, min_capacity, 0);
+			}
+			else if (!_first) { // reallocate if (_first == 0)
+				_realloc(_capacity ? _capacity * 2 : min_capacity);
+			}
 
 			new(&_data[--_first]) value_type(std::forward<Args>(args)...);
-			_size++;
+			++_size;
 			return _data[_first];
 		}
 
@@ -454,8 +454,8 @@ namespace MG {
 		void pop_front()
 		{
 			if (!empty()) {
-				_data[_first++].~value_type();
-				--_size;
+				_data[_first].~value_type();
+				++_first, --_size;
 			}
 		}
 
