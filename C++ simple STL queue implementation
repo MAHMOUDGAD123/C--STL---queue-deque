@@ -54,24 +54,25 @@ namespace MG {
 		//======================================================================
 
 		// assignment operator
+
+		// copy
 		constexpr iqueue& operator=(const _Container& _Cont) noexcept
 		{
 			_C_ = _Cont;
 			return *this;
 		}
-
-		constexpr iqueue& operator=(_Container&& _Cont) noexcept
-		{
-			_C_ = std::move(_Cont);
-			return *this;
-		}
-
 		constexpr iqueue& operator=(const iqueue& _Other) noexcept
 		{
 			_C_ = _Other._C_;
 			return *this;
 		}
 
+		// move
+		constexpr iqueue& operator=(_Container&& _Cont) noexcept
+		{
+			_C_ = std::move(_Cont);
+			return *this;
+		}
 		constexpr iqueue& operator=(iqueue&& _Other) noexcept
 		{
 			_C_ = std::move(_Other._C_);
@@ -104,6 +105,8 @@ namespace MG {
 		constexpr void push(const_reference _val) noexcept { _C_.push_back(_val); }
 		constexpr void push(rvalue_reference _val) noexcept { _C_.push_back(std::move(_val)); }
 
+		constexpr void pop() noexcept { _C_.pop_front(); }
+
 		constexpr void swap(iqueue& _Other) noexcept { _C_.swap(_Other._C_); }
 
 		// returns a const reference of the container
@@ -114,12 +117,21 @@ namespace MG {
 		constexpr bool operator==(const iqueue& _rhs) const noexcept { return _C_ == _rhs._C_; }
 		constexpr bool operator!=(const iqueue& _rhs) const noexcept { return _C_ != _rhs._C_; }
 
-		// demo purpose
+
+
+		// demo
 		constexpr void print() noexcept
 		{
 			std::cout << "\n\n";
-			for (const _Ty& _elem : _C_) {
-				std::cout << _elem << "  ";
+			if (empty()) {
+				std::cout << "-> Empty :-(";
+			}
+			else {
+				for (const _Ty& _elem : _C_) {
+					std::cout << _elem << "  ";
+				}
+				std::cout << "\n-> Front = " << front();
+				std::cout << "\n-> Back = " << back();
 			}
 			std::cout << "\n\n";
 		}
