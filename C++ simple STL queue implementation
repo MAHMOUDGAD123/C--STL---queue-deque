@@ -113,7 +113,7 @@ namespace MG {
 		constexpr const _Container& get_container() const noexcept { return _C_; }
 
 
-		// comparsion operators == / !=
+		// comparison operators == / !=
 		constexpr bool operator==(const iqueue& _rhs) const noexcept { return _C_ == _rhs._C_; }
 		constexpr bool operator!=(const iqueue& _rhs) const noexcept { return _C_ != _rhs._C_; }
 
